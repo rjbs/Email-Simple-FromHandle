@@ -8,11 +8,7 @@ use IO::String;
 use Fcntl qw(SEEK_SET);
 
 use vars qw($VERSION);
-$VERSION = '0.011';
-
-use overload (
-  q(<>) => 'getline',
-);
+$VERSION = '0.011_01';
 
 # We are liberal in what we accept.
 # But then, so is a six dollar whore.
@@ -165,8 +161,6 @@ For unseekable handles (pipes, sockets), this will die.
 =head2 getline
 
   $str = $email->getline;
-  # or
-  $str = <$email>.
 
 This method returns either the next line from the headers or the next line from
 the underlying filehandle.  It only returns a single line, regardless of

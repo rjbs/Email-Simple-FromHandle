@@ -35,7 +35,7 @@ is(
 );
 
 is(
-  <$mail>,
+  $mail->getline,
   "Received: (qmail 1679 invoked by uid 503); 13 Nov 2002 10:10:49 -0000\n",
   "first header line gotten",
 );
