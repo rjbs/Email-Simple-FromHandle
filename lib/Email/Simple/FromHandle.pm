@@ -10,6 +10,10 @@ use Fcntl qw(SEEK_SET);
 use vars qw($VERSION);
 $VERSION = '0.011';
 
+use overload (
+  q(<>) => 'getline',
+);
+
 # We are liberal in what we accept.
 # But then, so is a six dollar whore.
 # At least, that's what Casey tells me.
@@ -54,7 +58,15 @@ sub _split_head_from_body {
 
 sub reset_handle {
   my ($self) = @_;
-  seek $self->handle, $self->body_pos, SEEK_SET;
+
+  # Don't die the first time we try to read from a pipe/socket/etc.
+  # TODO: When reading from something non-seekable (body_pos == -1), should we
+  # give the option to store data into a temp file, or something similar?
+  return unless $self->body_pos > 0 or $self->{_seek}++;
+  delete $self->{_get_head_lines};
+
+  seek $self->handle, $self->body_pos, SEEK_SET
+    or die "can't seek: $!";
 }
 
 sub body_set {
@@ -74,6 +86,25 @@ sub body {
     my $handle = $self->handle;
     <$handle>;
   };
+}
+
+sub getline {
+  my ($self) = @_;
+  unless ($self->{_get_head_lines}) {
+    $self->{_get_head_lines} = [
+      split(/(?<=\n)/, $self->_headers_as_string),
+      $self->{mycrlf},
+    ];
+  }
+  my $handle = $self->handle;
+  return shift @{$self->{_get_head_lines}} || <$handle>;
+}
+
+sub stream_to {
+  my ($self, $fh) = @_;
+  while (defined(my $line = $self->getline)) {
+    print {$fh} $line or die "can't print '$line': $!";
+  }
 }
 
 1;
@@ -99,6 +130,8 @@ version 0.011
   my $email = Email::Simple::FromHandle->new($fh);
 
   print $email->as_string;
+  # or
+  $email->stream_to(\*STDOUT);
 
 =head1 DESCRIPTION
 
@@ -124,7 +157,27 @@ is used for seeking when re-reading the body.
 
 =head2 reset_handle
 
-This method seeks the handle to the body position.
+This method seeks the handle to the body position and resets the header-line
+iterator.
+
+For unseekable handles (pipes, sockets), this will die.
+
+=head2 getline
+
+  $str = $email->getline;
+  # or
+  $str = <$email>.
+
+This method returns either the next line from the headers or the next line from
+the underlying filehandle.  It only returns a single line, regardless of
+context.  Returns C<undef> on EOF.
+
+=head2 stream_to
+
+  $email->stream_to($fh);
+
+A convenient wrapper around C<while>, C<getline> and C<print>.  Prints each
+line of the message, one at a time, to the provided filehandle.
 
 =head1 COPYRIGHT
 
