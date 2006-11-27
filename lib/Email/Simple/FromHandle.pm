@@ -8,7 +8,7 @@ use IO::String;
 use Fcntl qw(SEEK_SET);
 
 use vars qw($VERSION);
-$VERSION = '0.011_01';
+$VERSION = '0.011_02';
 
 # We are liberal in what we accept.
 # But then, so is a six dollar whore.
@@ -98,8 +98,13 @@ sub getline {
 
 sub stream_to {
   my ($self, $fh) = @_;
-  while (defined(my $line = $self->getline)) {
-    print {$fh} $line or die "can't print '$line': $!";
+  print {$fh} $self->_headers_as_string . $self->{mycrlf};
+  my $buf;
+  # 65536 is a randomly-chosen magical number that's large enough to be a win
+  # over line-by-line reading but small enough not to impinge very much upon
+  # ram usage -- hdp, 2006-11-27
+  while (read($self->handle, $buf, 65536) > 0) {
+    print {$fh} $buf or die "can't print buffer: $!";
   }
 }
 

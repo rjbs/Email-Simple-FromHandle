@@ -1,6 +1,6 @@
 This is the revision history for Email-FromHandle
 
-x.xxx    2006-11-22 hdp
+x.xxx    xxxx-xx-xx hdp
          test for reading from unseekable filehandles
          add getline() for streaming from an email
          add stream_to() for convenient streaming to a fh
