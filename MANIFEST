@@ -20,4 +20,5 @@ t/pod-coverage.t
 t/test-mails/josey-fold
 t/test-mails/josey-nofold
 t/test-mails/long-msgid
+t/test-mails/header-blank
 LICENSE
