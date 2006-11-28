@@ -8,7 +8,7 @@ use IO::String;
 use Fcntl qw(SEEK_SET);
 
 use vars qw($VERSION);
-$VERSION = '0.011_02';
+$VERSION = '0.011_03';
 
 # We are liberal in what we accept.
 # But then, so is a six dollar whore.
@@ -42,14 +42,18 @@ sub _split_head_from_body {
 
     my $text = '';
 
+    # XXX it is stupid to use <> if we're really going to have multiple forms
+    # of crlf, but it is expedient to keep doing so for now. -- hdp, 2006-11-28
+    # theoretically, this should be ok, because it will only fail if lines are
+    # terminated with \x0d, which wouldn't be ok for network transport anyway.
+    my $mycrlf;
     while (<$handle>) {
+        last if $mycrlf and /\A$mycrlf\z/;
         $text .= $_;
-        last if /\A\s*\Z/;
+        ($mycrlf) = /($crlf)\z/;
     }
 
-    my ($head, $crlf) = $text =~ /(.*?($crlf))\2/sm;
-
-    return $crlf ? ($head, $crlf) : ($text, "\n");
+    return ($text, $mycrlf || "\n");
 }
 
 sub reset_handle {

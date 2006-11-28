@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
-use Test::More tests => 9;
+use Test::More tests => 10;
 use Symbol;
 
 sub read_file   { local $/; local *FH; open FH, shift or die $!; return <FH>; }
@@ -9,14 +9,14 @@ sub file_handle { my $fh = gensym; open $fh, "<", $_[0] or die $!; return $fh }
 use_ok("Email::Simple::FromHandle");
 
 # Very basic functionality test
-my $mail_text   = read_file("t/test-mails/josey-nofold");
-my $mail_handle = file_handle("t/test-mails/josey-nofold");
+my $mail_text   = read_file("t/test-mails/header-blank");
+my $mail_handle = file_handle("t/test-mails/header-blank");
 my $mail = Email::Simple::FromHandle->new($mail_handle);
 
 isa_ok($mail, "Email::Simple");
 isa_ok($mail, "Email::Simple::FromHandle");
 
-like($mail->header('From'), qr/Andrew/, "Andrew's in the header");
+like($mail->header('From'), qr/Business People/, "correct From:");
 
 $mail->reset_handle;
 
@@ -24,20 +24,14 @@ my $handle = $mail->handle;
 
 my @body = <$handle>;
 
-is(@body, 78, "78 lines in body");
+is(@body, 59, "59 lines in body");
 
 $mail->reset_handle;
 
 is(
   <$handle>,
-  "Joanna, All\n",
+  "XyzzyXX,\n",
   "first line gotten as requested",
-);
-
-is(
-  $mail->getline,
-  "Received: (qmail 1679 invoked by uid 503); 13 Nov 2002 10:10:49 -0000\n",
-  "first header line gotten",
 );
 
 {
@@ -51,7 +45,13 @@ is(
   }
   close $wtr;
   $mail = Email::Simple::FromHandle->new($rdr);
-  is $mail->as_string, $mail_text, "text from pipe";
+  my $ref = Email::Simple->new($mail_text);
+  is $mail->body, $ref->body, "body from pipe";
+  is $mail->header('Message-ID'), $ref->header('Message-ID'),
+    "message-id from pipe";
+  # just in case the same bug ever pops up in E::S
+  isnt $mail->header('Message-ID'), '',
+    "message-id from pipe isn't empty";
   eval { $mail->as_string };
   like $@, qr/illegal seek/i, "illegal seek on pipe";
 }
