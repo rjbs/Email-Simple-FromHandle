@@ -100,15 +100,25 @@ sub getline {
   return shift @{$self->{_get_head_lines}} || <$handle>;
 }
 
+sub _stream_to_print {
+  my $fh = shift;
+  print {$fh} @_ or die "can't print buffer: $!";
+}
+
 sub stream_to {
-  my ($self, $fh) = @_;
-  print {$fh} $self->_headers_as_string . $self->{mycrlf};
-  my $buf;
+  my ($self, $fh, $arg) = @_;
+  $arg ||= {};
+  $arg->{reset_handle} = 1 unless exists $arg->{reset_handle};
   # 65536 is a randomly-chosen magical number that's large enough to be a win
   # over line-by-line reading but small enough not to impinge very much upon
   # ram usage -- hdp, 2006-11-27
-  while (read($self->handle, $buf, 65536) > 0) {
-    print {$fh} $buf or die "can't print buffer: $!";
+  $arg->{chunk_size} ||= 65536;
+  $arg->{write}      ||= \&_stream_to_print;
+  $arg->{write}->($fh, $self->_headers_as_string . $self->{mycrlf});
+  $self->reset_handle if $arg->{reset_handle};
+  my $buf;
+  while (read($self->handle, $buf, $arg->{chunk_size}) > 0) {
+    $arg->{write}->($fh, $buf);
   }
 }
 
@@ -177,10 +187,30 @@ context.  Returns C<undef> on EOF.
 
 =head2 stream_to
 
-  $email->stream_to($fh);
+  $email->stream_to($fh, [ \%arg ]);
 
-A convenient wrapper around C<while>, C<getline> and C<print>.  Prints each
-line of the message, one at a time, to the provided filehandle.
+This method efficiently writes the message to the passed-in filehandle.  
+
+The second argument may be a hashref of options:
+
+=over 4
+
+=item B<reset_handle:>
+
+Whether or not to call C<< $self->reset_handle >> before reading the message
+(default true). 
+
+=item B<chunk_size:>
+
+Number of bytes to read from C<< $self->handle >> at once (default 65536).
+
+=item B<write:>
+
+Coderef to use to print instead of C<print $fh $chunk>.  This coderef will
+receive two arguments, the 'filehandle' (which need not be a real filehandle at
+all) and the current chunk of data.
+
+=back
 
 =head1 COPYRIGHT
 

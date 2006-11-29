@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 use strict;
-use Test::More tests => 10;
+use Test::More tests => 11;
 use Symbol;
 
 sub read_file   { local $/; local *FH; open FH, shift or die $!; return <FH>; }
@@ -34,6 +34,19 @@ is(
   "first line gotten as requested",
 );
 
+$mail->reset_handle;
+my $buf;
+$mail->stream_to(
+  \$buf, {
+    write => sub {
+      my ($buf_ref, $chunk) = @_;
+      $$buf_ref .= $chunk;
+    },
+  },
+);
+
+is $buf, $mail->as_string, "stream_to with custom writer";
+
 {
   pipe(my($rdr, $wtr));
   unless (fork) {
@@ -55,3 +68,4 @@ is(
   eval { $mail->as_string };
   like $@, qr/illegal seek/i, "illegal seek on pipe";
 }
+
