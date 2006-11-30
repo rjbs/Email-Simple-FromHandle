@@ -8,7 +8,7 @@ use IO::String;
 use Fcntl qw(SEEK_SET);
 
 use vars qw($VERSION);
-$VERSION = '0.011_03';
+$VERSION = '0.011_04';
 
 # We are liberal in what we accept.
 # But then, so is a six dollar whore.
