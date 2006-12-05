@@ -3,17 +3,14 @@ use base qw(Email::Simple);
 
 use strict;
 
-use Carp;
+use Carp ();
 use IO::String;
 use Fcntl qw(SEEK_SET);
 
 use vars qw($VERSION);
 $VERSION = '0.011_04';
 
-# We are liberal in what we accept.
-# But then, so is a six dollar whore.
-# At least, that's what Casey tells me.
-my $crlf = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/;
+my $crlf = qr/\x0a\x0d|\x0d\x0a|\x0a|\x0d/; # We are liberal in what we accept.
 
 sub handle { $_[0]->{handle} }
 sub body_pos { $_[0]->{body_pos} }
@@ -25,16 +22,15 @@ sub new {
 
     my ($head, $mycrlf) = _split_head_from_body($handle);
 
-    my ($head_hash, $order) = Email::Simple::_read_headers($head);
-
-    bless {
-        head     => $head_hash,
+    my $self = bless {
         handle   => $handle,
         body_pos => tell($handle),
-        order    => $order,
         mycrlf   => $mycrlf,
-        header_names => { map { lc $_ => $_ } keys %$head_hash }
     }, $class;
+
+    $self->__read_header($head);
+
+    return $self;
 }
 
 sub _split_head_from_body {
@@ -66,7 +62,7 @@ sub reset_handle {
   delete $self->{_get_head_lines};
 
   seek $self->handle, $self->body_pos, SEEK_SET
-    or die "can't seek: $!";
+    or Carp::croak "can't seek: $!";
 }
 
 sub body_set {
@@ -92,8 +88,8 @@ sub getline {
   my ($self) = @_;
   unless ($self->{_get_head_lines}) {
     $self->{_get_head_lines} = [
-      split(/(?<=\n)/, $self->_headers_as_string),
-      $self->{mycrlf},
+      split(/(?<=\n)/, $self->__head->as_string),
+      $self->crlf,
     ];
   }
   my $handle = $self->handle;

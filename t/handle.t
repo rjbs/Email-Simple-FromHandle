@@ -66,6 +66,6 @@ is $buf, $mail->as_string, "stream_to with custom writer";
   isnt $mail->header('Message-ID'), '',
     "message-id from pipe isn't empty";
   eval { $mail->as_string };
-  like $@, qr/illegal seek/i, "illegal seek on pipe";
+  like $@, qr/can't seek/i, "illegal seek on pipe";
 }
 

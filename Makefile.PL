@@ -8,7 +8,7 @@ author        ('Ricardo SIGNES <rjbs@cpan.org>');
 license       ('perl');
 version_from  ('lib/Email/Simple/FromHandle.pm');
 
-requires      ('Email::Simple' => 1.9);
+requires      ('Email::Simple' => 1.995);
 requires      ('IO::String'    => 0.0);
 
 WriteAll();
