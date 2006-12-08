@@ -1,9 +1,10 @@
 This is the revision history for Email-FromHandle
 
-x.xxx    xxxx-xx-xx hdp
-         test for reading from unseekable filehandles
-         add getline() for streaming from an email
-         add stream_to() for convenient streaming to a fh (or anything else)
+0.050    2006-12-xx
+         excellent features added by HDP:
+           test for reading from unseekable filehandles
+           add getline() for streaming from an email
+           add stream_to() for convenient streaming to a fh (or anything else)
 
 0.011    2006-06-13
          added this changelog
