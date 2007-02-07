@@ -105,7 +105,7 @@ sub getline {
   my ($self) = @_;
   unless ($self->{_get_head_lines}) {
     $self->{_get_head_lines} = [
-      split(/(?<=\n)/, $self->__head->as_string),
+      split(/(?<=\n)/, $self->header_obj->as_string),
       $self->crlf,
     ];
   }
@@ -156,7 +156,7 @@ sub stream_to {
   # ram usage -- hdp, 2006-11-27
   $arg->{chunk_size} ||= 65536;
   $arg->{write}      ||= \&_stream_to_print;
-  $arg->{write}->($fh, $self->__head->as_string . $self->{mycrlf});
+  $arg->{write}->($fh, $self->header_obj->as_string . $self->crlf);
   $self->reset_handle if $arg->{reset_handle};
   my $buf;
   while (read($self->handle, $buf, $arg->{chunk_size}) > 0) {
