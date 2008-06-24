@@ -167,9 +167,12 @@ sub stream_to {
 #### Methods that override Email::Simple below
 
 sub new {
-    my ($class, $handle) = @_;
+    my ($class, $handle, $arg) = @_;
 
-    return Email::Simple->new($handle) unless ref $handle;
+    $arg ||= {};
+    $arg->{header_class} ||= $class->_default_header_class;
+
+    return Email::Simple->new($handle, $arg) unless ref $handle;
 
     my ($head, $mycrlf) = $class->_split_head_from_body($handle);
 
@@ -180,7 +183,7 @@ sub new {
     }, $class;
 
     $self->header_obj_set(
-        Email::Simple::Header->new($head, { crlf => $self->crlf })
+        $arg->{header_class}->new($head, { crlf => $self->crlf })
     );
 
     return $self;
