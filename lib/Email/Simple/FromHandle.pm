@@ -170,7 +170,7 @@ sub new {
     my ($class, $handle, $arg) = @_;
 
     $arg ||= {};
-    $arg->{header_class} ||= $class->_default_header_class;
+    $arg->{header_class} ||= $class->default_header_class;
 
     return Email::Simple->new($handle, $arg) unless ref $handle;
 
