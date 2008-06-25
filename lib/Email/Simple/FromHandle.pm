@@ -10,14 +10,12 @@ Email::Simple::FromHandle - an Email::Simple but from a handle
 
 =head1 VERSION
 
-  $Id: /my/cs/projects/fromhandle/trunk/lib/Email/Simple/FromHandle.pm 22478 2006-06-13T12:51:46.331840Z rjbs  $
-
-version 0.050
+version 0.051
 
 =cut
 
 use vars qw($VERSION);
-$VERSION = '0.050';
+$VERSION = '0.051';
 
 =head1 SYNOPSIS
 
