@@ -82,7 +82,6 @@ sub reset_handle {
   # Don't die the first time we try to read from a pipe/socket/etc.
   # TODO: When reading from something non-seekable (body_pos == -1), should we
   # give the option to store data into a temp file, or something similar?
-  warn "seeking: $self->{body_pos}";
   return unless $self->body_pos > 0 or $self->{_seek}++;
   delete $self->{_get_head_lines};
 
