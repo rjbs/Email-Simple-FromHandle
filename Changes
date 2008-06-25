@@ -1,5 +1,8 @@
 This is the revision history for Email-Simple-FromHandle
 
+0.052    2008-06-25
+         fix cross-platform detection of non-seekable handles (HDP)
+
 0.051    2008-06-24
          allow header_class arg to new(), to match Email::Simple's new (HDP)
 
