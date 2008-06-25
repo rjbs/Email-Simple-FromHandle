@@ -10,12 +10,12 @@ Email::Simple::FromHandle - an Email::Simple but from a handle
 
 =head1 VERSION
 
-version 0.051
+version 0.052
 
 =cut
 
 use vars qw($VERSION);
-$VERSION = '0.051';
+$VERSION = '0.052';
 
 =head1 SYNOPSIS
 
