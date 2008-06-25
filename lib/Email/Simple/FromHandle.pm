@@ -76,13 +76,25 @@ For unseekable handles (pipes, sockets), this will die.
 
 =cut
 
+sub _is_seekable {
+  my ($self) = @_;
+  # on solaris, tell($pipe) == -1, and seeking on a pipe appears to discard the
+  # data waiting
+  return unless $self->body_pos >= 0;
+  # on linux, seeking on a pipe is safe and returns ''
+  return unless seek($self->handle, 0, 1);
+  # fall through: it must be seekable
+  return 1;
+}
+
 sub reset_handle {
   my ($self) = @_;
 
   # Don't die the first time we try to read from a pipe/socket/etc.
-  # TODO: When reading from something non-seekable (body_pos == -1), should we
+  # TODO: When reading from something non-seekable, should we
   # give the option to store data into a temp file, or something similar?
-  return unless seek($self->handle, 0, 1) or $self->{_seek}++;
+  return unless $self->_is_seekable || $self->{_seek}++;
+
   delete $self->{_get_head_lines};
 
   seek $self->handle, $self->body_pos, SEEK_SET
