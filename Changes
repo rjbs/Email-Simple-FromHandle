@@ -1,7 +1,7 @@
-This is the revision history for Email-FromHandle
+This is the revision history for Email-Simple-FromHandle
 
 0.051    2008-06-24
-         allow header_class arg to new(), to match Email::Simple's interface
+         allow header_class arg to new(), to match Email::Simple's new (HDP)
 
 0.050    2007-02-06
          excellent features added by HDP:
