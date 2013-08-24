@@ -1,21 +1,9 @@
 use strict;
-
+use warnings;
 package Email::Simple::FromHandle;
-use base qw(Email::Simple);
-## no critic RequireUseWarnings
-
-=head1 NAME
-
-Email::Simple::FromHandle - an Email::Simple but from a handle
-
-=head1 VERSION
-
-version 0.052
-
-=cut
-
-use vars qw($VERSION);
-$VERSION = '0.052';
+use Email::Simple 2.004;
+use parent 'Email::Simple';
+# ABSTRACT: an Email::Simple but from a handle
 
 =head1 SYNOPSIS
 
@@ -237,23 +225,12 @@ sub body {
   };
 }
 
-=head1 PERL EMAIL PROJECT
-
-This module is maintained by the Perl Email Project.
-
-L<http://emailproject.perl.org/wiki/Email::Simple::FromHandle>
-
-=head1 AUTHORS
+=head1 CREDITS
 
 Ricardo SIGNES wrote Email::Simple.
 
 Numerous improvement, especially streamability the handling of pipes, were made
 by Hans Dieter Pearcey.
-
-=head1 COPYRIGHT AND LICENSE
-
-This code is copyright Ricardo SIGNES, 2006.  It is free software, released
-with the same licenses as Perl itself.
 
 =cut
 
